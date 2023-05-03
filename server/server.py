@@ -2,6 +2,7 @@ import socket
 import cv2
 import json
 import threading
+import base64
 
 
 def recv_message(socket, chunk_length):
@@ -44,6 +45,7 @@ def camera_thread(socket):
         _, img_encoded = cv2.imencode('.jpg', frame)
         # Converti il frame in bytes
         data = img_encoded.tobytes()
+        data = base64.b64encode(data).decode('utf-8')
         send_message(socket, "video_frame", data)
         response = recv_message(socket, 32)
         response = json.loads(response)
@@ -68,4 +70,4 @@ conn, addr = server_socket.accept()
 print('Connesso da', addr)
 
 cam_thread = threading.Thread(target=camera_thread, args=(conn,))
-cam_thread.join()
+cam_thread.start()
