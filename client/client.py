@@ -38,7 +38,7 @@ def connect():
 
     if connected == 0:
         footage_socket.connect('tcp://192.168.1.5:5555')
-        footage_socket.setsockopt_string(zmq.SUBSCRIBE, np.unicode(''))
+        footage_socket.setsockopt_string(zmq.SUBSCRIBE, b''.decode('utf-8'))
         connected = 1
         update_video()
 
@@ -47,7 +47,7 @@ def disconnect():
     global connected
 
     if connected == 1:
-        footage_socket.disconnect()
+        footage_socket.disconnect('tcp://192.168.1.5:5555')
         connected = 0
 
 
