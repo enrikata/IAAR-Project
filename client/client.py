@@ -3,28 +3,26 @@ import socket
 import json
 import base64
 import cv2
+import zmq
 import numpy as np
 from PIL import Image, ImageTk
-from communication.communication import send_message, recv_message
+from communication import recv_message
 
-HOST = '192.168.1.5'
-PORT = 8000
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+context = zmq.Context()
+footage_socket = context.socket(zmq.SUB)
 connected = 0
 
 # Funzione per aggiornare il flusso video sul widget Label
 def update_video():
     # Ricevi i dati dal server
-    message = recv_message(client_socket, 32)
-    message = json.loads(message)
-    data = base64.b64decode(message["payload"])
-    # Decodifica i dati come immagine JPEG
-    img_np = np.frombuffer(data, dtype=np.uint8)
-    frame = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
-    if frame is None:
+    frame = footage_socket.recv_string()
+    img = base64.b64decode(frame)
+    npimg = np.frombuffer(img, dtype=np.uint8)
+    source = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+    if source is None:
         print("No frame received.\n")
     # Converti il frame in un oggetto PhotoImage
-    img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    img = cv2.cvtColor(source, cv2.COLOR_BGR2RGB)
     img_pil = Image.fromarray(img)
     img_tk = ImageTk.PhotoImage(img_pil)
     # Aggiorna l'immagine sul widget Label
@@ -35,22 +33,21 @@ def update_video():
         root.after(10, update_video)
 
 def connect():
-    global client_socket
-    global HOST
-    global PORT
+    global footage_socket
     global connected
 
     if connected == 0:
-        client_socket.connect((HOST, PORT))
+        footage_socket.connect('tcp://192.168.1.5:5555')
+        footage_socket.setsockopt_string(zmq.SUBSCRIBE, np.unicode(''))
         connected = 1
         update_video()
 
 def disconnect():
-    global client_socket
+    global footage_socket
     global connected
 
     if connected == 1:
-        client_socket.shutdown(socket.SHUT_RDWR)
+        footage_socket.disconnect()
         connected = 0
 
 
