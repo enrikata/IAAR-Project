@@ -5,42 +5,12 @@ import base64
 import cv2
 import numpy as np
 from PIL import Image, ImageTk
+from communication.communication import send_message, recv_message
 
 HOST = '192.168.1.5'
 PORT = 8000
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connected = 0
-
-
-def recv_message(socket, chunk_length):
-    message = bytes()
-    n = 0
-
-    while True:
-
-        content = socket.recv(chunk_length)
-        message+=content
-            
-        if '{' in str(content, 'utf-8'):
-            n+=1
-        if '}' in str(content, 'utf-8'):
-            n-=1
-        if n == 0:
-            break
-
-    return message
-
-def send_message(socket, type, payload):
-
-    packet = {
-        "type" : type,
-        "payload" : payload
-    }
-        
-    json_packet = bytes(json.dumps(packet), 'utf-8')
-    socket.send(json_packet)
-    return packet
-
 
 # Funzione per aggiornare il flusso video sul widget Label
 def update_video():
@@ -60,7 +30,6 @@ def update_video():
     # Aggiorna l'immagine sul widget Label
     video_label.config(image=img_tk)
     video_label.img = img_tk
-    send_message(client_socket, "response", "OK")
     # Richiama la funzione di aggiornamento dopo 10 millisecondi
     if connected == 1:
         root.after(10, update_video)

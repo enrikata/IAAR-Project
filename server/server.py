@@ -3,36 +3,8 @@ import cv2
 import json
 import threading
 import base64
+from communication.communication import send_message, recv_message
 
-
-def recv_message(socket, chunk_length):
-    message = bytes()
-    n = 0
-
-    while True:
-
-        content = socket.recv(chunk_length)
-        message+=content
-            
-        if '{' in str(content, 'utf-8'):
-            n+=1
-        if '}' in str(content, 'utf-8'):
-            n-=1
-        if n == 0:
-            break
-
-    return message
-
-def send_message(socket, type, payload):
-
-    packet = {
-        "type" : type,
-        "payload" : payload
-    }
-        
-    json_packet = bytes(json.dumps(packet), 'utf-8')
-    socket.send(json_packet)
-    return packet
 
 def camera_thread(socket):
     # Cattura il video dalla webcam
@@ -47,12 +19,7 @@ def camera_thread(socket):
         data = img_encoded.tobytes()
         data = base64.b64encode(data).decode('utf-8')
         send_message(socket, "video_frame", data)
-        response = recv_message(socket, 32)
-        response = json.loads(response)
-        response = response["payload"]
-        if response != "OK":
-            raise Exception("Wrong response received. Closing connection.\n")
-    
+   
 
 
 HOST = '192.168.1.5' # Indirizzo IP del server
@@ -71,3 +38,9 @@ print('Connesso da', addr)
 
 cam_thread = threading.Thread(target=camera_thread, args=(conn,))
 cam_thread.start()
+
+
+
+#### CREARE CLASSE SERVER PER GESTIRE FLUSSO WEBCAM E THREADS
+#### CREARE MODULO PER GESTIONE, RICEZIONE E INVIO MESSAGGI CON JSON
+#### GESTIRE TUTTI I FLUSSI LATO CLIENT CON THREAD SEPARATI PER LA RICEZIONE E L'INVIO DEI MESSAGGI E L'AGGIORNAMENTO DELLA FINESTRA DELLA GUI
