@@ -1,15 +1,19 @@
 import tkinter as tk
 import socket
-import json
 import base64
 import cv2
 import zmq
 import numpy as np
 from PIL import Image, ImageTk
-from communication import recv_message
+from communication import recv_message, send_message
 
+
+host = '192.168.90.212'
+comm_port = 8000
+video_port = 5555
 context = zmq.Context()
 footage_socket = context.socket(zmq.SUB)
+comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connected = 0
 
 # Funzione per aggiornare il flusso video sul widget Label
@@ -37,8 +41,9 @@ def connect():
     global connected
 
     if connected == 0:
-        footage_socket.connect('tcp://192.168.1.5:5555')
+        footage_socket.connect(f'tcp://{host}:{video_port}')
         footage_socket.setsockopt_string(zmq.SUBSCRIBE, b''.decode('utf-8'))
+        comm_socket.connect((host, comm_port))
         connected = 1
         update_video()
 
@@ -47,8 +52,16 @@ def disconnect():
     global connected
 
     if connected == 1:
-        footage_socket.disconnect('tcp://192.168.1.5:5555')
+        footage_socket.disconnect(f'tcp://{host}:{video_port}')
         connected = 0
+
+def start():
+    global connected
+
+    if connected == 1:
+        send_message(comm_socket, "message", "START")
+
+
 
 
 # Crea la finestra di tkinter
@@ -63,8 +76,11 @@ video_label.pack()
 connect_button = tk.Button(text="Connect", command=connect)
 connect_button.pack()
 
-connect_button = tk.Button(text="Disconnect", command=disconnect)
-connect_button.pack()
+disconnect_button = tk.Button(text="Disconnect", command=disconnect)
+disconnect_button.pack()
+
+start_button = tk.Button(text="Start", command=start)
+start_button.pack()
 # Avvia la funzione di aggiornamento del flusso video
 
 # Avvia la finestra di tkinter
