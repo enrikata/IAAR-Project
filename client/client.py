@@ -12,8 +12,8 @@ host = '192.168.90.212'
 comm_port = 8000
 video_port = 5555
 context = zmq.Context()
-footage_socket = context.socket(zmq.SUB)
-comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+footage_socket = None
+comm_socket = None
 connected = 0
 
 # Funzione per aggiornare il flusso video sul widget Label
@@ -37,10 +37,14 @@ def update_video():
         root.after(10, update_video)
 
 def connect():
+    global context
     global footage_socket
+    global comm_socket
     global connected
 
     if connected == 0:
+        footage_socket = context.socket(zmq.SUB)
+        comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         footage_socket.connect(f'tcp://{host}:{video_port}')
         footage_socket.setsockopt_string(zmq.SUBSCRIBE, b''.decode('utf-8'))
         comm_socket.connect((host, comm_port))
@@ -53,6 +57,7 @@ def disconnect():
 
     if connected == 1:
         footage_socket.disconnect(f'tcp://{host}:{video_port}')
+        comm_socket.close()
         connected = 0
 
 def start():

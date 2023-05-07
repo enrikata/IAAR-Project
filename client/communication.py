@@ -7,8 +7,9 @@ def recv_message(socket: socket.socket, chunk_length: int) -> dict:
     n = 0
 
     while True:
-
         content = socket.recv(chunk_length)
+        if content is None:
+            return None
         message+=content
 
         if '{' in str(content, 'utf-8'):
@@ -18,6 +19,7 @@ def recv_message(socket: socket.socket, chunk_length: int) -> dict:
         if n == 0:
             break
 
+    message = json.loads(message)
     return message
 
 

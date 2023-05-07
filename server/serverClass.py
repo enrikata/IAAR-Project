@@ -4,6 +4,7 @@ import base64
 import json
 import threading
 import socket
+import matlab.engine
 
 def recv_message(socket: socket.socket, chunk_length: int) -> dict:
     message = bytes()
@@ -11,6 +12,8 @@ def recv_message(socket: socket.socket, chunk_length: int) -> dict:
 
     while True:
         content = socket.recv(chunk_length)
+        if content is None:
+            return None
         message+=content
 
         if '{' in str(content, 'utf-8'):
@@ -36,8 +39,7 @@ def send_message(socket: socket.socket, type: str, payload: str) -> dict:
     return packet
 
 
-def camera_handle(socket: socket.socket) -> None:
-    camera = cv2.VideoCapture(0)
+def camera_handle(socket: socket.socket, camera: cv2.VideoCapture) -> None:
 
     while True:
         grabbed, frame = camera.read()
@@ -52,26 +54,33 @@ class serverClass():
         self.host = host
         self.comm_port = comm_port
         self.video_port = video_port
-        self.camera = cv2.VideoCapture(0)
-        self.video_socket = zmq.Context().socket(zmq.PUB)
-        self.comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.video_thread = threading.Thread(target=camera_handle, args=(self.video_socket,))
-        self.matlab = matlab.engine.start_matlab()
+        self._camera = cv2.VideoCapture(0)
+        self._video_socket = zmq.Context().socket(zmq.PUB)
+        self._comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._video_thread = threading.Thread(target=camera_handle, args=(self._video_socket, self._camera))
+        self._matlab = matlab.engine.start_matlab()
 
     def start(self):
-        self.video_socket.bind(f'tcp://{self.host}:{self.video_port}')
-        self.comm_socket.bind((self.host, self.comm_port))
-        self.video_thread.start()
-        self.comm_socket.listen()
-        conn, addr = self.comm_socket.accept()
-        print(f"Client connected with address and port {addr}")
+        self._video_socket.bind(f'tcp://{self.host}:{self.video_port}')
+        self._comm_socket.bind((self.host, self.comm_port))
+        self._video_thread.start()
+        self._comm_socket.listen()
+        print("Server listening.")
         while True:
-            message = recv_message(conn, 32)
-            if message["payload"] == "START":
-                
-
-
-
-
-
-
+            conn, addr = self.comm_socket.accept()
+            print(f"Client connected with address and port {addr}.")
+            while True:
+                message = recv_message(conn, 32)
+                if message is None:
+                    print("Client disconnected.\n Server listening.")
+                    break
+                if message["payload"] == "START":
+                    print("START")
+                    ### START THE SYSTEM ###
+                if message["payload"] == "STOP":
+                    print("STOP")
+                    ### STOP THE SYSTEM ###
+                if message["payload"] == "DISCONNECT":
+                    print("DISCONNECT")
+                    ### STOP THE SYSTEM AND SHUT EVERYTHING DOWN ###
+                    
