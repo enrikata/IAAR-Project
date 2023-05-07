@@ -1,6 +1,6 @@
 import serverClass
 
-server = serverClass.serverClass('192.168.90.254', 8000, 5555)
+server = serverClass.serverClass('192.168.1.5', 8000, 5555)
 server.start()
 
 

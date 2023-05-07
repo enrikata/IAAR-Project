@@ -12,7 +12,7 @@ def recv_message(socket: socket.socket, chunk_length: int) -> dict:
 
     while True:
         content = socket.recv(chunk_length)
-        if content is None:
+        if not content:
             return None
         message+=content
 
@@ -67,7 +67,7 @@ class serverClass():
         self._comm_socket.listen()
         print("Server listening.")
         while True:
-            conn, addr = self.comm_socket.accept()
+            conn, addr = self._comm_socket.accept()
             print(f"Client connected with address and port {addr}.")
             while True:
                 message = recv_message(conn, 32)
