@@ -35,6 +35,10 @@ def update_video():
     # Richiama la funzione di aggiornamento dopo 10 millisecondi
     if connected == 1:
         root.after(10, update_video)
+    else:
+        footage_socket.disconnect(f'tcp://{host}:{video_port}')
+        video_label.img = None
+
 
 def connect():
     global context
@@ -54,9 +58,9 @@ def connect():
 def disconnect():
     global footage_socket
     global connected
+    global comm_socket
 
     if connected == 1:
-        footage_socket.disconnect(f'tcp://{host}:{video_port}')
         comm_socket.close()
         connected = 0
 
@@ -75,8 +79,6 @@ root.title("Flusso video dalla webcam")
 root.geometry("900x900")
 
 # Crea il widget Label per visualizzare l'immagine del video
-video_label = tk.Label(root)
-video_label.pack()
 
 connect_button = tk.Button(text="Connect", command=connect)
 connect_button.pack()
@@ -87,6 +89,10 @@ disconnect_button.pack()
 start_button = tk.Button(text="Start", command=start)
 start_button.pack()
 # Avvia la funzione di aggiornamento del flusso video
+
+video_label = tk.Label(root)
+video_label.config(width=1280, height=720, bg='black')
+video_label.pack()
 
 # Avvia la finestra di tkinter
 root.mainloop()
