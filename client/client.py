@@ -23,8 +23,6 @@ def update_video():
     img = base64.b64decode(frame)
     npimg = np.frombuffer(img, dtype=np.uint8)
     source = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-    if source is None:
-        print("No frame received.\n")
     # Converti il frame in un oggetto PhotoImage
     img = cv2.cvtColor(source, cv2.COLOR_BGR2RGB)
     img_pil = Image.fromarray(img)
@@ -34,7 +32,7 @@ def update_video():
     video_label.img = img_tk
     # Richiama la funzione di aggiornamento dopo 10 millisecondi
     if connected == 1:
-        root.after(10, update_video)
+        root.after(4, update_video)
     else:
         footage_socket.disconnect(f'tcp://{host}:{video_port}')
         video_label.img = None

@@ -4,7 +4,7 @@ import base64
 import json
 import threading
 import socket
-import matlab.engine
+from time import sleep
 
 def recv_message(socket: socket.socket, chunk_length: int) -> dict:
     message = bytes()
@@ -46,6 +46,8 @@ def camera_handle(socket: socket.socket, camera: cv2.VideoCapture) -> None:
         encoded, buffer = cv2.imencode('.jpg', frame)
         jpg_as_text = base64.b64encode(buffer)
         socket.send(jpg_as_text)
+        sleep(0.05)
+
 
 
 class serverClass():
@@ -58,7 +60,6 @@ class serverClass():
         self._video_socket = zmq.Context().socket(zmq.PUB)
         self._comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._video_thread = threading.Thread(target=camera_handle, args=(self._video_socket, self._camera))
-        self._matlab = matlab.engine.start_matlab()
 
     def start(self):
         self._video_socket.bind(f'tcp://{self.host}:{self.video_port}')
