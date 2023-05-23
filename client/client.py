@@ -1,14 +1,13 @@
 import tkinter as tk
 import socket
+import json
 import base64
 import cv2
 import zmq
 import numpy as np
 from PIL import Image, ImageTk
-from communication import recv_message, send_message
 
-
-host = '192.168.90.212'
+host = '192.168.1.5'
 comm_port = 8000
 video_port = 5555
 context = zmq.Context()
@@ -16,21 +15,48 @@ footage_socket = None
 comm_socket = None
 connected = 0
 
-# Funzione per aggiornare il flusso video sul widget Label
+def recv_message(socket: socket.socket, chunk_length: int) -> dict:
+    message = bytes()
+    n = 0
+
+    while True:
+        content = socket.recv(chunk_length)
+        if content is None:
+            return None
+        message+=content
+
+        if '{' in str(content, 'utf-8'):
+            n+=1
+        if '}' in str(content, 'utf-8'):
+            n-=1
+        if n == 0:
+            break
+
+    message = json.loads(message)
+    return message
+
+
+def send_message(socket: socket.socket, type: str, payload: str) -> dict:
+
+    packet = {
+        "type" : type,
+        "payload" : payload
+    }
+
+    json_packet = bytes(json.dumps(packet), 'utf-8')
+    socket.send(json_packet)
+    return packet
+
 def update_video():
-    # Ricevi i dati dal server
     frame = footage_socket.recv_string()
     img = base64.b64decode(frame)
     npimg = np.frombuffer(img, dtype=np.uint8)
     source = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-    # Converti il frame in un oggetto PhotoImage
     img = cv2.cvtColor(source, cv2.COLOR_BGR2RGB)
     img_pil = Image.fromarray(img)
     img_tk = ImageTk.PhotoImage(img_pil)
-    # Aggiorna l'immagine sul widget Label
     video_label.config(image=img_tk)
     video_label.img = img_tk
-    # Richiama la funzione di aggiornamento dopo 10 millisecondi
     if connected == 1:
         root.after(4, update_video)
     else:
@@ -54,7 +80,6 @@ def connect():
         update_video()
 
 def disconnect():
-    global footage_socket
     global connected
     global comm_socket
 
@@ -63,20 +88,16 @@ def disconnect():
         connected = 0
 
 def start():
-    global connected
-
     if connected == 1:
         send_message(comm_socket, "message", "START")
 
 
 
 
-# Crea la finestra di tkinter
 root = tk.Tk()
 root.title("Flusso video dalla webcam")
 root.geometry("900x900")
 
-# Crea il widget Label per visualizzare l'immagine del video
 
 connect_button = tk.Button(text="Connect", command=connect)
 connect_button.pack()
@@ -86,11 +107,9 @@ disconnect_button.pack()
 
 start_button = tk.Button(text="Start", command=start)
 start_button.pack()
-# Avvia la funzione di aggiornamento del flusso video
 
 video_label = tk.Label(root)
 video_label.config(width=1280, height=720, bg='black')
 video_label.pack()
 
-# Avvia la finestra di tkinter
 root.mainloop()
