@@ -24,7 +24,7 @@ class ServerClass():
         self._comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._plc_socket_1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._plc_socket_2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._client_sync = threading.Semaphore(0)
+        self._client_sync = threading.Event()
         self._system_state = "STOP"
         self._initial_position = np.array([[0],[0],[0],[0],[0],[0],[0],[0]])
         self._video_thread = threading.Thread(target=camera_handle, args=(self._video_socket,
@@ -54,7 +54,7 @@ class ServerClass():
                 message = receive(conn)
                 if message is None:
                     if self._system_state == "RUNNING":
-                        self._client_sync.acquire()
+                        self._client_sync.clear()
                         self._system_state = "STOP"
                         print("Due to client disconnection, the system has been stopped.")
                     print("Client disconnected.\nServer listening.")
@@ -63,20 +63,20 @@ class ServerClass():
                 if message["payload"] == "START":
                     if self._system_state == "STOP":
                         self._system_state = "RUNNING"
-                        self._client_sync.release()
-                        send(conn, "message", "System started.")
+                        self._client_sync.set()
+                        send(conn, "message", "System started.\n")
                     else:
                         print("A Start command has been received, but the system is already running.")
-                        send(conn, "message", "A Start command has been received, but the system is already running.")
+                        send(conn, "message", "A Start command has been received, but the system is already running.\n")
 
 
                 if message["payload"] == "STOP":
                     if self._system_state == "RUNNING":
-                        self._client_sync.acquire()
+                        self._client_sync.clear()
                         self._system_state = "STOP"
                         print("System stopped.")
                         send(conn, "message", "System stopped.")
                     else:
                         print("A Stop command has been received, but the system is not running.")
-                        send(conn, "message", "A Stop command has been received, but the system is not running.")
+                        send(conn, "message", "A Stop command has been received, but the system is not running.\n")
                     

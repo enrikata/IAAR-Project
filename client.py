@@ -45,9 +45,9 @@ def update_root():
 
     if len(msg_list) != 0:
         msg = msg_list.pop(0)
-        text_box.state = 'normal'
+        text_box.config(state = 'normal')
         text_box.insert('end', msg)
-        text_box.state = 'disabled'
+        text_box.config(state = 'disabled')
     if connected == 1:
         root.after(4, update_root)
     else:
@@ -68,7 +68,11 @@ def connect():
         footage_socket.setsockopt_string(zmq.SUBSCRIBE, b''.decode('utf-8'))
         comm_socket.connect((host, comm_port))
         connected = 1
-        comm_thread = threading.Thread(socket_receiver, (comm_socket, msg_list))
+        comm_thread = threading.Thread(target=socket_receiver, args=(comm_socket, msg_list))
+        comm_thread.start()
+        text_box.config(state = 'normal')
+        text_box.insert('end', "Connected.\n")
+        text_box.config(state = 'disabled')
         update_root()
 
 def disconnect():
@@ -78,6 +82,10 @@ def disconnect():
     if connected == 1:
         comm_socket.close()
         connected = 0
+        text_box.config(state = 'normal')
+        text_box.insert('end', "Disconnected.\n")
+        text_box.config(state = 'disabled')
+
 
 def start():
     if connected == 1:
