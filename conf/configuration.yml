@@ -1,0 +1,18 @@
+### YML CONFIGURATION FILE ###
+
+# PC Side connection #
+host_pc: "172.20.10.3"
+comm_port: 8000
+video_port: 5000
+
+# PLC_Side_connection #
+host_plc: "192.168.0.241"
+plc_port_1: 2000
+plc_port_2: 2001
+
+# Camera IDs #
+footage_cam_ID: 1
+AI_cam_ID: 0
+
+# Path to Keras Model #
+AI_model_path: "model/MLModel.keras"
