@@ -75,7 +75,7 @@ class ServerClass():
                         self._client_sync.clear()
                         self._system_state = "STOP"
                         print("System stopped.")
-                        send(conn, "message", "System stopped.")
+                        send(conn, "message", "System stopped.\n")
                     else:
                         print("A Stop command has been received, but the system is not running.")
                         send(conn, "message", "A Stop command has been received, but the system is not running.\n")
