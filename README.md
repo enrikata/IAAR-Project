@@ -13,8 +13,19 @@ Main objects in the scene:
 - Siemens PLC
 - 2 webcams
 
-## How to run and how to connect cables phyisically
-............. quali script eseguire lato client e server, come collegare ethernet (tra chi) e come connettere webcam ecc
+## How to run the system
+#### Server Side
+- Create a Python Virtual Environment (https://docs.python.org/3/library/venv.html)
+- Install all the required Python packages (OpenCV, Numpy, Tensorflow, ZMQ)
+- Connect the computer and the PLC with an ethernet cable
+- Connect the two USB webcams to the computer
+- Modify the configuration file (conf/configuration.yml) according to your setup (IP addresses, webcam IDs)
+- Run the server.py script
+
+#### Client Side
+- Create a Python Virtual Environment (https://docs.python.org/3/library/venv.html)
+- Install all the required Python packages (OpenCV, Numpy, Pillow, ZMQ)
+- Run the client.py script
 
 ### About
 This repository contains the server and client python files, a plc code (tiaportal), a simulation video and a documentation. The project is created by two university students (Vincenzo Aricò and Enrico Catalfamo) at UNIME (University of Messina). The project is part of the Industrial automation and robotics (IAAR) course, specifically, the first project for Module B.
