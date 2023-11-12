@@ -17,7 +17,7 @@ Main objects in the scene:
 ............. quali script eseguire lato client e server, come collegare ethernet (tra chi) e come connettere webcam ecc
 
 ### About
-This repository contains the server and client python files, a simulation video and a documentation. The project is created by two university students (Vincenzo Aricò and Enrico Catalfamo) at UNIME (University of Messina). The project is part of the Industrial automation and robotics (IAAR) course, specifically, the first project for Module B.
+This repository contains the server and client python files, a plc code (tiaportal), a simulation video and a documentation. The project is created by two university students (Vincenzo Aricò and Enrico Catalfamo) at UNIME (University of Messina). The project is part of the Industrial automation and robotics (IAAR) course, specifically, the first project for Module B.
 
 ### Contributors
 
