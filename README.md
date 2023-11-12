@@ -1,7 +1,7 @@
 # Automated AI-based pick-and-place system using Fischertechnik 3D-Robot 24V
 
 ## Robot model:
-Fischertechnik 3D-Robot 24V (https://www.fischertechnik.de/en/products/simulating/ training-models/511938-sim-3d-robot-24v-simulation)
+Fischertechnik 3D-Robot 24V (https://www.fischertechnik.de/en/products/simulating/training-models/511938-sim-3d-robot-24v-simulation)
 
 ## Goal: 
 Reproducing a scenario of a pick and place system with proximity sensor and object recognition (AI)
