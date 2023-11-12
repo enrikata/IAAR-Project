@@ -18,7 +18,7 @@ Main objects in the scene:
 - Create a Python Virtual Environment (https://docs.python.org/3/library/venv.html)
 - Install all the required Python packages (OpenCV, Numpy, Tensorflow, ZMQ)
 - Connect the computer and the PLC with an ethernet cable
-- Connect the two USB webcams to the computer
+- Connect two USB webcams to the computer (one for object detection, one for working environment monitoring)
 - Modify the configuration file (conf/configuration.yml) according to your setup (IP addresses, webcam IDs)
 - Run the server.py script
 
