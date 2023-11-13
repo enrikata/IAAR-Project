@@ -27,6 +27,9 @@ Main objects in the scene:
 - Install all the required Python packages (OpenCV, Numpy, Pillow, ZMQ)
 - Run the client.py script
 
+## System demonstration video
+https://drive.google.com/file/d/1UScXifK5S98wxwEysAeTo22XCfPcCFL4/view?usp=sharing
+
 ### About
 This repository contains the server and client python files, a plc code (tiaportal), a simulation video and a documentation. The project is created by two university students (Vincenzo Aricò and Enrico Catalfamo) at UNIME (University of Messina). The project is part of the Industrial automation and robotics (IAAR) course, specifically, the first project for Module B.
 
