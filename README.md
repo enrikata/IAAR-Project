@@ -31,7 +31,7 @@ Main objects in the scene:
 https://drive.google.com/file/d/1UScXifK5S98wxwEysAeTo22XCfPcCFL4/view?usp=sharing
 
 ## About
-This repository contains the server and client python files, the code for the PLC (A ladder diagram realized with TIA Portal), a simulation video and the documentation. The project was created by two university students (Vincenzo Aricò and Enrico Catalfamo) at UNIME (University of Messina). It is part of the Industrial automation and robotics (IAAR) course, specifically, the first project for Module B.
+This repository contains the server and client python files, the PLC code (A ladder diagram realized with TIA Portal), a simulation video and the documentation. The project was created by two university students (Vincenzo Aricò and Enrico Catalfamo) at UNIME (University of Messina). It is part of the Industrial automation and robotics (IAAR) course, specifically, the first project for Module B.
 
 ## Contributors
 
