@@ -4,10 +4,13 @@ import threading
 import yaml
 import base64
 import cv2
+import imutils
 import zmq
 import numpy as np
 from PIL import Image, ImageTk
 from Communication import send, receive
+
+BUFF_SIZE = 65535
 
 with open('conf/configuration.yml') as conf_file:
     params = yaml.safe_load(conf_file)
@@ -15,7 +18,6 @@ with open('conf/configuration.yml') as conf_file:
 host = params["host_pc"]
 comm_port = params["comm_port"]
 video_port = params["video_port"]
-context = zmq.Context()
 footage_socket = None
 comm_socket = None
 connected = 0
@@ -32,12 +34,10 @@ def socket_receiver(s, list):
         
 
 def update_root():
-    frame = footage_socket.recv_string()
-    img = base64.b64decode(frame)
-    npimg = np.frombuffer(img, dtype=np.uint8)
-    source = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-    img = cv2.cvtColor(source, cv2.COLOR_BGR2RGB)
-    #img = img.resize((600,600))
+    packet, _ = footage_socket.recvfrom(BUFF_SIZE)
+    data = base64.b64decode(packet,' /')
+    npdata = np.frombuffer(data, dtype=np.uint8)
+    img = cv2.imdecode(npdata,1)
     img_pil = Image.fromarray(img)
     img_tk = ImageTk.PhotoImage(img_pil)
     video_label.config(image=img_tk)
@@ -49,23 +49,22 @@ def update_root():
         text_box.insert('end', msg)
         text_box.config(state = 'disabled')
     if connected == 1:
-        root.after(4, update_root)
+        root.after(2, update_root)
     else:
-        footage_socket.disconnect(f'tcp://{host}:{video_port}')
+        footage_socket.close()
         video_label.img = None
 
 
 def connect():
-    global context
     global footage_socket
     global comm_socket
     global connected
 
     if connected == 0:
-        footage_socket = context.socket(zmq.SUB)
+        footage_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        footage_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF,BUFF_SIZE)
         comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        footage_socket.connect(f'tcp://{host}:{video_port}')
-        footage_socket.setsockopt_string(zmq.SUBSCRIBE, b''.decode('utf-8'))
+        footage_socket.sendto(b'connect', (host, video_port))
         comm_socket.connect((host, comm_port))
         connected = 1
         comm_thread = threading.Thread(target=socket_receiver, args=(comm_socket, msg_list))

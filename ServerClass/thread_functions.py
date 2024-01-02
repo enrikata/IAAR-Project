@@ -10,14 +10,19 @@ from .move_robot import move_robot
 
 
 
-def camera_handle(socket, camera) -> None:
-
+def camera_handle(socket: socket.socket,
+                  camera: cv2.VideoCapture,
+                  event: Event) -> None:
     while True:
-        _, frame = camera.read()
-        _, buffer = cv2.imencode('.jpg', frame)
-        jpg_as_text = base64.b64encode(buffer)
-        socket.send(jpg_as_text)
-        sleep(0.05)
+        msg, addr = socket.recvfrom(65535)
+        while True:
+            _, frame = camera.read()
+            _, buffer = cv2.imencode('.jpg',frame,[cv2.IMWRITE_JPEG_QUALITY,80])
+            jpg_as_text = base64.b64encode(buffer)
+            socket.sendto(jpg_as_text, addr)
+            if event.is_set():
+                event.clear()
+                break
 
 
 def robot_control(socket_1: socket.socket,
