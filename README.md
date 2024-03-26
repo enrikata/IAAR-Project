@@ -16,7 +16,10 @@ Main objects in the scene:
 ## How to run the system
 #### Server Side
 - Create a Python Virtual Environment (https://docs.python.org/3/library/venv.html)
-- Install all the required Python packages (OpenCV, Numpy, Tensorflow, ZMQ)
+- Install all the required Python packages (OpenCV, Numpy, Tensorflow) using the requirments txt.
+```bash
+pip install -r requirements.txt
+```
 - Connect the computer and the PLC with an ethernet cable
 - Connect two USB webcams to the computer (one for object detection, one for working environment monitoring)
 - Modify the configuration file (conf/configuration.yml) according to your setup (IP addresses, webcam IDs)
@@ -24,7 +27,10 @@ Main objects in the scene:
 
 #### Client Side
 - Create a Python Virtual Environment (https://docs.python.org/3/library/venv.html)
-- Install all the required Python packages (OpenCV, Numpy, Pillow, ZMQ)
+- Install all the required Python packages (OpenCV, Numpy, Tensorflow) using the requirments txt.
+```bash
+pip install -r requirements.txt
+```
 - Run the client.py script
 
 ## System demonstration video
