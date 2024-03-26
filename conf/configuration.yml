@@ -13,7 +13,7 @@ plc_port_2: 2001
 
 # Camera IDs #
 footage_cam_ID: 4
-AI_cam_ID: 0 #4
+AI_cam_ID: 2 #4
 
 # Path to Keras Model #
 AI_model_path: "model/MLModel.keras"

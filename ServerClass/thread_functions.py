@@ -50,7 +50,7 @@ def robot_control(socket_1: socket.socket,
                             break
 
                     if ret:
-                        #frame = frame[450:750, 800:1200]
+                        frame = frame[140:340, 200:400]
                         name = os.path.join("model/predictions",str(n) + '.jpg' )
                         cv2.imwrite(name, frame)
                         n += 1

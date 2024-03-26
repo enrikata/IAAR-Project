@@ -4,7 +4,6 @@ import threading
 import yaml
 import base64
 import cv2
-import imutils
 import numpy as np
 from PIL import Image, ImageTk
 from Communication import send, receive
@@ -38,14 +37,14 @@ def update_root():
     npdata = np.frombuffer(data, dtype=np.uint8)
     img = cv2.imdecode(npdata,1)
     
-    target_width, target_height = 320, 352  
+    target_width, target_height = 600, 500  
     aspect_ratio = img.shape[1] / img.shape[0]
     if aspect_ratio > target_width / target_height:
         target_height = int(target_width / aspect_ratio)
     else:
         target_width = int(target_height * aspect_ratio)
     resized_frame = cv2.resize(img, (target_width, target_height))
-    img_pil = Image.fromarray(resized_frame)
+    img_pil = Image.fromarray(img)
     img_tk = ImageTk.PhotoImage(img_pil)
     video_label.config(image=img_tk)
     video_label.img = img_tk
@@ -134,18 +133,14 @@ start_button.pack()
 stop_button = tk.Button(text="Stop", command=stop)
 stop_button.pack()
 
-text_box = tk.Text(root, height=10, width=70, state = 'disabled')
+text_box = tk.Text(root, height=5, width=70, state = 'disabled')
 text_box.pack()
 
 
 
 video_label = tk.Label(root)
-video_label.config(width=300, height=600, bg='black', anchor='nw')
-video_label.pack(side=tk.LEFT)
-
-video_label2 = tk.Label(root)
-video_label2.config(width=300, height=600, bg='white',anchor='ne')
-video_label2.pack(side=tk.RIGHT)
+video_label.config(width=600, height=600, bg='black', anchor='nw')
+video_label.pack()
 
 
 
