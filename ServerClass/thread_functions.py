@@ -7,17 +7,23 @@ from time import sleep
 from tensorflow import keras
 from tensorflow import convert_to_tensor, expand_dims
 from .move_robot import move_robot
+import os
 
 
-
-def camera_handle(socket, camera) -> None:
-
+def camera_handle(socket: socket.socket,
+                  camera: cv2.VideoCapture,
+                  event: Event) -> None:
     while True:
-        _, frame = camera.read()
-        _, buffer = cv2.imencode('.jpg', frame)
-        jpg_as_text = base64.b64encode(buffer)
-        socket.send(jpg_as_text)
-        sleep(0.05)
+        msg, addr = socket.recvfrom(65535)
+        while True:
+            ret, frame = camera.read()
+            if ret:
+                _, buffer = cv2.imencode('.jpg',frame,[cv2.IMWRITE_JPEG_QUALITY,80])
+                jpg_as_text = base64.b64encode(buffer)
+                socket.sendto(jpg_as_text, addr)
+                if event.is_set():
+                    event.clear()
+                    break
 
 
 def robot_control(socket_1: socket.socket,
@@ -35,23 +41,29 @@ def robot_control(socket_1: socket.socket,
         n = 0
         while True:
             while event.is_set():
-                print("evento")
                 msg = conveyor_conn.recv(1024)
                 if "START" in str(msg):
                     print("Object detected by the photosensor.")
-                    _,frame = cam.read()
-                    frame = frame[450:750, 800:1200]
-                    cv2.imwrite('model/predictions/' + str(n) + '.jpg', frame)
-                    n += 1
-                    frame = cv2.resize(frame, (200, 200))
-                    frame = convert_to_tensor(frame)
-                    frame = expand_dims(frame, axis=0)
+                    while True:
+                        ret,frame = cam.read()
+                        if ret:
+                            break
 
-                    prediction = model.predict(frame)
-                    print(prediction)
-                    class_detected = np.argmax(prediction)
+                    if ret:
+                        #frame = frame[450:750, 800:1200]
+                        name = os.path.join("model/predictions",str(n) + '.jpg' )
+                        cv2.imwrite(name, frame)
+                        n += 1
+                        frame = cv2.resize(frame, (200, 200))
+                        frame = convert_to_tensor(frame)
+                        frame = expand_dims(frame, axis=0)
+
+                        prediction = model.predict(frame)
+                        print(prediction)
+                        class_detected = np.argmax(prediction)
 
                     if class_detected == 0:
+                        print("Square")
                         pos = move_robot(robot_conn, pos, rotation = -3.5, horizontal = 20, vertical = -0.03, gripper = 0)
                         pos = move_robot(robot_conn, pos, rotation = -3.5, horizontal = 20, vertical = -0.03, gripper = 1)
                         pos = move_robot(robot_conn, pos, rotation = 0, horizontal = 0, vertical = 0, gripper = 1)
@@ -62,6 +74,7 @@ def robot_control(socket_1: socket.socket,
                         pos = move_robot(robot_conn, pos, rotation = 0, horizontal = 0, vertical = 0, gripper = 0)
 
                     if class_detected == 1:
+                        print("Triangle")
                         pos = move_robot(robot_conn, pos, rotation = -3.5, horizontal = 20, vertical = -0.03, gripper = 0)
                         pos = move_robot(robot_conn, pos, rotation = -3.5, horizontal = 20, vertical = -0.03, gripper = 1)
                         pos = move_robot(robot_conn, pos, rotation = 0, horizontal = 0, vertical = 0, gripper = 1)
